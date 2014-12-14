@@ -3,15 +3,15 @@ import random
 import matplotlib.pyplot as plt
 
 
-def cluster_points(points, mu):
-    clusters = {}
-    for x in points:
-        best_mu_key = min([(i[0], np.linalg.norm(x-mu[i[0]])) \
+def cluster_points(X, mu):
+    clusters  = {}
+    for x in X:
+        bestmukey = min([(i[0], np.linalg.norm(x-mu[i[0]])) \
                     for i in enumerate(mu)], key=lambda t:t[1])[0]
         try:
-            clusters[best_mu_key].append(x)
+            clusters[bestmukey].append(x)
         except KeyError:
-            clusters[best_mu_key] = [x]
+            clusters[bestmukey] = [x]
     return clusters
 
 
@@ -24,30 +24,29 @@ def reevaluate_centers(mu, clusters):
 
 
 def has_converged(mu, oldmu):
-    return set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu])
+    return (set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu]))
 
-
-def find_centers(x, k):
+def find_centers(X, K):
     # Initialize to K random centers
-    oldmu = random.sample(x, k)
-    mu = random.sample(x, k)
+    oldmu = random.sample(X, K)
+    mu = random.sample(X, K)
     while not has_converged(mu, oldmu):
         oldmu = mu
         # Assign all points in X to clusters
-        clusters = cluster_points(x, mu)
+        clusters = cluster_points(X, mu)
         # Reevaluate centers
         mu = reevaluate_centers(oldmu, clusters)
     return(mu, clusters)
 
 
-def init_board(n):
-    ar = np.array([(random.uniform(-1, 1), random.uniform(-1, 1)) for i in range(n)])
-    return ar
+def init_board(N):
+    X = np.array([(random.uniform(-1, 1), random.uniform(-1, 1)) for i in range(N)])
+    return X
 
 
-def init_board_gauss(total_points, k):
-    n = float(total_points)/k
-    ar = []
+def init_board_gauss(N, k):
+    n = float(N)/k
+    X = []
     for i in range(k):
         c = (random.uniform(-1, 1), random.uniform(-1, 1))
         s = random.uniform(0.05,0.5)
@@ -57,11 +56,15 @@ def init_board_gauss(total_points, k):
             # Continue drawing points from the distribution in the range [-1,1]
             if abs(a) < 1 and abs(b) < 1:
                 x.append([a,b])
-        ar.extend(x)
-    ar = np.array(ar)[:total_points]
-    return ar
+        X.extend(x)
+    X = np.array(X)[:N]
+    return X
 
-X = init_board_gauss(30, 3)
+N = 30
+k = 3
+X = init_board_gauss(N, k)
+mu = random.sample(X, k)        # takes k data points out of the group X
+print mu
 # X = init_board(200)
 xs = []
 ys = []
@@ -70,6 +73,15 @@ for i in X:
     xs.append(i[0])
     ys.append(i[1])
 
-plt.plot(xs, ys, 'ro')
-plt.axis([-1, 1, -1, 1])
-plt.show()
+# plt.plot(xs, ys, 'ro')
+# plt.axis([-1, 1, -1, 1])
+# plt.show()
+
+clusters = cluster_points(X, mu)
+new_mu = reevaluate_centers(mu, clusters)
+print has_converged(new_mu, mu)     # returns a True or False. Can be used to stop the iteration loop
+find_centers(X, k)
+
+print clusters
+print new_mu
+print "Centers: %s, Clusters: %s" % find_centers(X, k)
