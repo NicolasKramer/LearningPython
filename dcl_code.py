@@ -1,10 +1,12 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 
 def cluster_points(X, mu):
-    clusters  = {}
+    # Returns a dictionary with key for cluster index and value a list of point sub-lists
+    clusters = {}
     for x in X:
         bestmukey = min([(i[0], np.linalg.norm(x-mu[i[0]])) \
                     for i in enumerate(mu)], key=lambda t:t[1])[0]
@@ -24,10 +26,13 @@ def reevaluate_centers(mu, clusters):
 
 
 def has_converged(mu, oldmu):
-    return (set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu]))
+    # returns a True or False. Can be used to stop the iteration loop
+    return set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu])
+
 
 def find_centers(X, K):
     # Initialize to K random centers
+    # Returns mu as a tuple for each k. Returns clusters as the usual dictionary
     oldmu = random.sample(X, K)
     mu = random.sample(X, K)
     while not has_converged(mu, oldmu):
@@ -60,28 +65,30 @@ def init_board_gauss(N, k):
     X = np.array(X)[:N]
     return X
 
-N = 30
-k = 3
+N = 200
+k = 5
 X = init_board_gauss(N, k)
-mu = random.sample(X, k)        # takes k data points out of the group X
-print mu
-# X = init_board(200)
-xs = []
-ys = []
 
-for i in X:
+mu, clusters = find_centers(X,k)
+
+print clusters[0]
+for i in range(k):
+    xs = []
+    ys = []
+    colors = np.random.rand(4)
+    for j in clusters[i]:
+        xs.append(j[0])
+        ys.append(j[1])
+    plt.scatter(xs, ys, s=30, c=colors)
+
+print mu
+for i in mu:
+    xs = []
+    ys = []
+    colors = [0.5,  0.5,  0.5]
     xs.append(i[0])
     ys.append(i[1])
+    plt.scatter(xs, ys, s=150, c=colors, alpha=0.5)
 
-# plt.plot(xs, ys, 'ro')
-# plt.axis([-1, 1, -1, 1])
-# plt.show()
-
-clusters = cluster_points(X, mu)
-new_mu = reevaluate_centers(mu, clusters)
-print has_converged(new_mu, mu)     # returns a True or False. Can be used to stop the iteration loop
-find_centers(X, k)
-
-print clusters
-print new_mu
-print "Centers: %s, Clusters: %s" % find_centers(X, k)
+plt.axis([-1, 1, -1, 1])
+plt.show()
