@@ -1,7 +1,6 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 
 
 def cluster_points(X, mu):
@@ -71,24 +70,29 @@ X = init_board_gauss(N, k)
 
 mu, clusters = find_centers(X,k)
 
+# plt.figure(0)
+#
+# for i in X:
+#     xs = []
+#     ys = []
+#     colors = [0.9,  0.1,  0.1]
+#     xs.append(i[0])
+#     ys.append(i[1])
+#     plt.scatter(xs, ys, s=30, c=colors, alpha=0.5)
+# plt.show()
+
+plt.figure(1)
+
 print clusters[0]
 for i in range(k):
-    xs = []
-    ys = []
-    colors = np.random.rand(4)
+    colors = np.random.rand(3)
     for j in clusters[i]:
-        xs.append(j[0])
-        ys.append(j[1])
-    plt.scatter(xs, ys, s=30, c=colors)
+        plt.scatter(j[0], j[1], s=30, c=colors)
 
 print mu
 for i in mu:
-    xs = []
-    ys = []
     colors = [0.5,  0.5,  0.5]
-    xs.append(i[0])
-    ys.append(i[1])
-    plt.scatter(xs, ys, s=150, c=colors, alpha=0.5)
+    plt.scatter(i[0], i[1], s=150, c=colors, alpha=0.5)
 
 plt.axis([-1, 1, -1, 1])
 plt.show()
